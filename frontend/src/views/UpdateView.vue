@@ -45,7 +45,7 @@
                     </li>
                     <li>
                         <!-- <a href="#" class="active">Historical</a> -->
-                        <router-link class="active" to="/historique">Historical</router-link>
+                        <router-link to="/historique">Historical</router-link>
                     </li>
                 </ul>
             </div>
@@ -79,41 +79,38 @@
                     </div>
                 </ul>
             </div>
-            <div class="body">
-                <h1>All the appointments you've booked.</h1>
-                <div class="RDV"  v-if="rdvs.length > 0">
-                    <div class="All-rendez">
-                        <div v-for="data in rdvs" :key="data.id" class="rendez-content">
-                            <div class="rendez">
-                                <div class="sous-rendez">
-                                    <div class="object">{{ data.sujet }}</div>
-                                    <div class="date">{{ data.date_r }}</div>
-                                    <div class="time">{{ data.id_creneau }}</div>
-                                </div>
-                                
-                            </div>
-                        
-                            <form>
-                                <a v-on:click="update(data.id_r,data.sujet,data.date_r,data.id_creneau)">
-                                    <img src="../assets/add.png" />
-                                </a>
-                            </form>
-                        </div>
-                    </div>
-
-                    <hr />
-                    <div class="historique">
-                        <div v-for="data in rdvsh" :key="data.id" class="rendez-content">
-                            <div class="rendez">
-                                <div class="sous-rendez">
-                                    <div class="object">{{ data.sujet }}</div>
-                                    <div class="date">{{ data.date_r }}</div>
-                                    <div class="time">{{ data.id_creneau }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+        <div class="operation">
+            <div class="delete">
+                <button type="submit" @click="deleteRdv(this.$route.params.id)" class="btnSubmit">Delete </button>
+            </div>
+            <p>or</p>
+            <div class="update">
+                    <form  class="formRDV">
+            <!-- <select>
+              <option selected>Choose the Subject</option>
+              <option value="#">Build a House</option>
+              <option value="#">Build a House</option>
+              <option value="#">Build a House</option>
+            </select>-->
+            <input type="text" v-model="NewRDV.sujet" placeholder="Subject"/>
+            <input type="hidden" v-model="NewRDV.id_r"/>
+            <br />
+            <input
+              @change="getcreDate()"
+              v-model="NewRDV.date"
+              type="date"
+              :min="new Date().toISOString().substr(0, 10)"
+              placeholder="Choose the Time"
+            />
+            <br />
+            <select v-model="NewRDV.id_creneau" >
+              <option selected>Choose the time </option>
+              <option v-for="cro in crono" :key="cro">{{cro}}</option>
+            </select>
+            <br />
+            <input @click="updateRdv()" type="button" class="btnSubmit" value="Submit">
+          </form>
             </div>
         </div>
         <footer>
@@ -150,96 +147,140 @@
 <script>
 
 
-
-
-
-
-
-
-
-
 export default {
-    name: "historique-view",
+  name: "Update",
+  data() {
+    return {
+      id: localStorage.getItem("id"),
+      userLog: {},
+      NewRDV: {
+        id_client: localStorage.getItem("id"),
+        sujet: "",
+        date: "",
+        id_creneau: "",
+        id_r: "",
+      },
+      crono:""
+    }
+  },
+//   mounted() {
+      
+//     //    this.NewRDV. = this.$route.params.id;
+//   },
+  methods: {
 
-
-    data() {
-        return {
-            userLog: {},
-            id: localStorage.getItem("id"),
-            // list: Array(4).fill({ id_r: "", date_r: new Date("2022-03-28"), sujet: "tester", id_creneau: 1, id_client: 1, date_c: "de 10 h a 10:30 h" }).map(v => ({ ...v, id: Math.random() })),
-            rdvs: {
-                id_r: "",
-                date_r: "",
-                sujet: "",
-                id_creneau: "",
-                id_client: "",
-                // date_c: "",
-            },
-             rdvsh: {
-                id_r: "",
-                date_r: "",
-                sujet: "",
-                id_creneau: "",
-                id_client: "",
-                // date_c: "",
-            },
-            client: {},
-
-        }
-    },
-    mounted() {
-        fetch(`http://localhost/rdv/backend/User/getAllRDV1?id=${this.id}`, {
-            method: "GET",
-        })
-            .then(ress => ress.json()).then(rdvs => {
-                this.rdvs = rdvs;
-                // console.log("gggggggggg");
-            })
-            fetch(`http://localhost/rdv/backend/User/getAllRDV2?id=${this.id}`, {
-            method: "GET",
-        })
-            .then(ress => ress.json()).then(rdvsh => {
-                this.rdvsh = rdvsh;
-                // console.log("gggggggggg");
-            })
-        this.getUser();
-        // this.id = localStorage.getItem("id");
-        // console.log(localStorage.getItem("id"));
-
-
-    },
-    methods: {
-        getUser() {
-            fetch(`http://localhost/rdv/backend/User/getUser?id=${this.id}`, {
-                method: "GET",
-            })
-                .then((result) => {
-                    return result.json();
+    
+afficher(){
+    console.log('seccess');
+    window.location="/historique"
+},
+deleteRdv(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to delete this user! ' + id,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire(
+                    'Deleted!',
+                    'User has been deleted.',
+                    'success',
+                    fetch(`http://localhost/rdv/backend/User/deleteRdv?id=${id}`,
+                {
+                    method: "GET"
+                }
+            )   
+                    ).then(() => {
+                        this.afficher();
+                    })
+                }
                 })
-                .then((data) => {
-                    this.userLog = data;
-                });
+            
         },
 
-        update(id,sujet,date,time){
-            this.$router.push({path: `/update/${id},${sujet},${date},${time}` 
-            }
-        );
-        }
-
-        //     newrdv() {
-        //         fetch(`http://localhost/rdv/backend/User/addRDV`, {
-        //             method: "POST",
-        //             body: JSON.stringify(this.NewRDV)
-        //         }).then((reponse => {
-        //             return reponse.json();
-        //         })).then((data) => {
-        //             console.log(data);
-        //         })
-        //     }
-
+    getUser() {
+      fetch(`http://localhost/rdv/backend/User/getUser?id=${this.id}`, {
+        method: "GET",
+      })
+        .then((result) => {
+          return result.json();
+        })
+        .then((data) => {
+          this.userLog = data;
+        });
     },
+        showAlert() {
+      Swal.fire({
+      icon: 'success',
+      title: 'Your Appointment has been Updated',
+      confirmButtonText: 'Continue',
+    }).then((result) => {
+      if (result) {
+        this.showPopup = false
+        window.location="/historique"
+      }
+  })
+  },
+    updateRdv() {
+      if(this.NewRDV.sujet != "" && this.NewRDV.date != "" && this.NewRDV.id_creneau != ""){
+        //   console.log('hello');
+        fetch(`http://localhost/rdv/backend/User/updateRDV`, {        
+                method: "POST",
+                body: JSON.stringify(this.NewRDV),
+
+              }).then((result) => {
+                //  return result.json();
+                this.$router.push("/historique");
+        })
+        .then((data) => {
+          if (data) {
+            this.showAlert();
+            // this.$router.push("/");
+            // this.form = !this.form
+          }
+          // this.add(data);
+        });
+            }else{
+            this.problem();
+              
+            }
+
+      },
+      problem(){
+
+          Swal.fire(
+                'The Internet?',
+                'Some input is empty?',
+                'question'
+              )
+      },
+      
+    getcreDate(){
+      fetch(`http://localhost/rdv/backend/User/getcreDate?date=${this.NewRDV.date}`,{
+        method:"GET",
+      }).then((repon)=>{
+        return repon.json();
+      }).then((rest)=>{
+        this.crono=rest;
+
+      })
+    }
+
+  },
+  mounted() {
+    this.getUser();
+    this.NewRDV.sujet = this.$route.params.sujet;
+    this.NewRDV.date = this.$route.params.date;
+    this.NewRDV.id_r = this.$route.params.id;
+  },
+
+
 }
+
 </script>
 
 
@@ -274,9 +315,7 @@ template {
     color: rgba(255, 255, 255, 0.3);
 }
 
-.delete{
-    cursor: pointer;
-}
+
 .allHistorique {
     background-image: url(../assets/back2.png);
     /* background:linear-gradient(to top,rgba(0,0,0,0.5)25%,rgba(0,0,0,0.5)25%),url(../assets/back.png); */
@@ -501,7 +540,6 @@ hr {
     border-radius: 15px;
     padding: 7%;
     width: 80%;
-    margin-left: 11%;
     margin-top: 5%;
     padding-bottom: 3%;
 }
@@ -521,6 +559,8 @@ select option {
     color: #252a30;
     font-weight: bold;
     font-size: 16px;
+     cursor: pointer;
+    width: 80%;
 }
 .btn {
     display: flex;
@@ -738,6 +778,20 @@ select option {
     font-size: 20px;
     cursor: pointer;
 }
+.operation{
+    position: absolute;
+    display: flex;
+    width: 40%;
+    top: 20%;
+    bottom: 0;
+    left: 37%;
+    right: 0;
+    flex-direction: column;
+    text-align: -webkit-center;
+}
+.operation p{
+    margin-top: 5%;
+}
 
 @media screen and (max-width: 700px) {
     .navbar {
@@ -829,5 +883,10 @@ select option {
     .create {
         margin-left: 28%;
     }
+    .operation{
+        width: 100%;
+        left: 0%;
+        top: 29%;
+        }
 }
 </style>

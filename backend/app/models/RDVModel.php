@@ -63,4 +63,17 @@ class RDVModel
         $result = $stm->execute($data);
         return $result;
     }
+    public function updateRDV($data)
+    {
+        $conn = $this->db;
+        $query = $conn->prepare("UPDATE `rdv` SET
+                                `sujet`=?,
+                                `date_r`=?,
+                                `id_creneau`=?
+                                WHERE id_r=?");
+             $params = array($data["sujet"],$data["date"],$data["id_creneau"],$data["id_r"]);
+             $stmnt = $query->execute($params);
+        return $stmnt;
+        // echo "hello";
+    }
 }

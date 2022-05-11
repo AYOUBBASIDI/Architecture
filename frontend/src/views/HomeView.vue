@@ -218,8 +218,9 @@ export default {
 
       })
         .then((result) => {
+          echo ("hello");
           return result.json();
-
+          
         })
         .then((data) => {
           if (data) {

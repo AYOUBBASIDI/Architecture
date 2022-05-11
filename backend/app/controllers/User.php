@@ -1,4 +1,5 @@
 <?php
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin:*');
 header('Access-Control-Allow-Methods:*');
@@ -99,6 +100,24 @@ class User extends Controller
       // }
     }
   }
+
+  public function updateRDV()
+  {
+    // var_dump($_GET['id']);
+    echo ("this is update function");
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+      // echo ('im in if');
+      $UpdateRDV = $this->model('RDVModel');
+      $json = file_get_contents('php://input');
+      $data = json_decode($json, true);
+      $Updatet = $UpdateRDV->updateRDV($data);
+      echo json_encode($Updatet);
+      // if ($created) {
+      //   echo json_encode($created);
+      // }
+    }
+  }
+
   public function getcreDate()
   {
     $addApp = $this->model("RDVModel");
@@ -128,17 +147,12 @@ class User extends Controller
     }
     echo json_encode($datAA);
   }
-  public function deleterdv()
+  public function deleteRdv()
   {
-    echo $_SERVER["REQUEST_METHOD"];
-    if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
-      echo "hello";
-      $this->id = json_decode(file_get_contents("php://input")) ->id;
+    if ($_SERVER["REQUEST_METHOD"] === "GET") {
       $user = $this->model('UserModel');
-      $user->delete_r($this->id);
-      // echo json_encode($id);
-      // var_dump($id);
-     
+      $user->delete_r($_GET['id']);
   }
-}
+  }
+
 }

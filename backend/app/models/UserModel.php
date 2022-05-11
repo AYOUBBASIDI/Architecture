@@ -41,6 +41,13 @@ class UserModel
         $stm = $conn->prepare($requi);
         $stm->execute();
     }
+    public function removeRdv($id)
+    {
+        $conn = $this->db;
+        $requi = "DELETE FROM `rdv` WHERE id_r =$id";
+        $stm = $conn->prepare($requi);
+        $stm->execute();
+    }
     // methodes pour insert une data dans database
 
     public function insert($data)
@@ -58,4 +65,5 @@ class UserModel
         $stm = $conn->prepare($requi);
         $stm->execute();
     }
+   
 }
